@@ -1,11 +1,11 @@
 # excel_processor.py
 import os
 import openpyxl
-from _config import Colors
+from utils import Colors
 
 
 class ExcelProcessor:
-    def __init__(self, directory):
+    def __init__(self, directory: str):
         self.__directory__ = directory
 
     def search_files(self, field, filenames):
@@ -106,11 +106,11 @@ class ExcelProcessor:
                             for source_cell, target_cell in zip(source_row[1:], target_row[1:]):  # 从第二列开始复制
                                 target_cell.value = source_cell.value
                             print(
-                                Colors.GREEN + f"在文件{filename}中，已将主键为{source_key}的行复制到主键为{target_key}的行。" + Colors.RESET)
+                                Colors.GREEN + f"在文件{filename}的表{sheet}中，已将主键为{source_key}的行复制到主键为{target_key}的行。" + Colors.RESET)
                         elif not source_row:
-                            print(Colors.YELLOW + f"在文件{filename}中，没有找到主键为{source_key}的行。" + Colors.RESET)
+                            print(Colors.YELLOW + f"在文件{filename}的表{sheet}中，没有找到主键为{source_key}的行。" + Colors.RESET)
                         elif not target_row:
-                            print(Colors.YELLOW + f"在文件{filename}中，没有找到主键为{target_key}的行。" + Colors.RESET)
+                            print(Colors.YELLOW + f"在文件{filename}的表{sheet}中，没有找到主键为{target_key}的行。" + Colors.RESET)
                     workbook.save(os.path.join(self.__directory__, filename))
                 except Exception as e:
                     print(Colors.RED + f"处理文件{filename}时发生错误: {str(e)}" + Colors.RESET)

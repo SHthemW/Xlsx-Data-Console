@@ -1,6 +1,6 @@
 # command_processor.py
 import os
-from _config import Colors
+from utils import Colors
 
 
 class CommandProcessor:
