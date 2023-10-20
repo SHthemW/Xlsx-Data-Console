@@ -24,6 +24,7 @@ class CommandProcessor:
                 for f in self.parse_field(field):
                     print(f"\n正在查找字段'{f}'的结果：")
                     self.__excel_proc__.search_files(f, self.__excel_proc__.parse_filenames(filenames_str))
+
         elif command[0].lower() == 'update':
             if len(command) < 5 or (
                     command[2].lower() != 'to' and (command[4].lower() != 'in' and command[4].lower() != 'except')):
@@ -34,6 +35,22 @@ class CommandProcessor:
                 for new_f in self.parse_field(new_field):
                     print(f"\n正在更新字段'{old_f}'至'{new_f}'的结果：")
                     self.__excel_proc__.update_files(old_f, new_f, self.__excel_proc__.parse_filenames(filenames_str))
+
+        elif command[0].lower() == 'copyrow':
+            if len(command) < 6 or (
+                    command[3].lower() != 'to' and (command[5].lower() != 'in' and command[5].lower() != 'except')):
+                print(Colors.RED + "复制操作必须指定作用域" + Colors.RESET)
+                return True
+            key_column, source_keys, target_keys, filenames_str = command[1], self.parse_field(
+                command[2]), self.parse_field(command[4]), ' '.join(command[5:])
+            if len(source_keys) != len(target_keys):
+                print(Colors.RED + "源行和目标行的数量不匹配" + Colors.RESET)
+                return True
+            for source_key, target_key in zip(source_keys, target_keys):
+                print(f"\n正在将主键'{source_key}'复制到主键'{target_key}'的结果：")
+                self.__excel_proc__.copy_row(key_column, source_key, target_key,
+                                             self.__excel_proc__.parse_filenames(filenames_str))
+
         else:
             print(Colors.RED + "无法识别的命令" + Colors.RESET)
         return True

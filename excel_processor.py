@@ -71,6 +71,50 @@ class ExcelProcessor:
         elif 'EXCEPT' in filenames_str.split():
             _, except_files_str = filenames_str.split('EXCEPT')
             except_files = except_files_str.lower().split()
-            return [f for f in all_files if f not in except_files]
+            result = [f for f in all_files if f not in except_files]
+            return result
         else:
-            return filenames_str.lower().split()
+            result = filenames_str.lower().split()
+            return result
+
+    def copy_row(self, key_column, source_key, target_key, filenames):
+        for filename in os.listdir(self.__directory__):
+            if filename.endswith(".xlsx") and not filename.startswith("~$") and filename.lower().replace('.xlsx',
+                                                                                                         '') in filenames:
+                try:
+                    workbook = openpyxl.load_workbook(os.path.join(self.__directory__, filename))
+                    for sheet in workbook.sheetnames:
+                        worksheet = workbook[sheet]
+                        source_row = None
+                        target_row = None
+                        key_column_index = None
+                        # 遍历标题行，找到主键列
+                        for cell in worksheet[1]:
+                            if str(cell.value) == str(key_column):
+                                key_column_index = cell.column
+                                break
+                        if key_column_index is None:
+                            print(Colors.YELLOW + f"在文件{filename}的表{sheet}中，没有找到列名为{key_column}的列。" + Colors.RESET)
+                            continue
+                        # 在主键列中查找源行和目标行
+                        for row in worksheet.iter_rows(min_row=2):  # 从第二行开始遍历
+                            if str(row[key_column_index - 1].value) == str(source_key):
+                                source_row = row
+                            if str(row[key_column_index - 1].value) == str(target_key):
+                                target_row = row
+                        if source_row and target_row:
+                            for source_cell, target_cell in zip(source_row[1:], target_row[1:]):  # 从第二列开始复制
+                                target_cell.value = source_cell.value
+                            print(
+                                Colors.GREEN + f"在文件{filename}中，已将主键为{source_key}的行复制到主键为{target_key}的行。" + Colors.RESET)
+                        elif not source_row:
+                            print(Colors.YELLOW + f"在文件{filename}中，没有找到主键为{source_key}的行。" + Colors.RESET)
+                        elif not target_row:
+                            print(Colors.YELLOW + f"在文件{filename}中，没有找到主键为{target_key}的行。" + Colors.RESET)
+                    workbook.save(os.path.join(self.__directory__, filename))
+                except Exception as e:
+                    print(Colors.RED + f"处理文件{filename}时发生错误: {str(e)}" + Colors.RESET)
+
+
+
+
