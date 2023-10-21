@@ -37,21 +37,6 @@ class InstructProcessor:
             print(f"\n正在更新字段'{old_col}-{old_val}'至'{new_val}'的结果：")
             self.__excel_proc__.update_files((old_col, old_val), (new_col, new_val), self.__excel_proc__.parse_filenames(filenames_str))
 
-        elif command[0].lower() == 'copy':
-            if len(command) < 6 or (
-                    command[3].lower() != 'to' and (command[5].lower() != 'in' and command[5].lower() != 'except')):
-                print(Colors.RED + "复制操作必须指定作用域" + Colors.RESET)
-                return True
-            key_column, source_keys, target_keys, filenames_str = command[1], self.__exp_proc__.parse_field_exp(
-                command[2]), self.__exp_proc__.parse_field_exp(command[4]), ' '.join(command[5:])
-            if len(source_keys) != len(target_keys):
-                print(Colors.RED + "源行和目标行的数量不匹配" + Colors.RESET)
-                return True
-            for source_key, target_key in zip(source_keys, target_keys):
-                print(f"\n正在将主键'{source_key}'复制到主键'{target_key}'的结果：")
-                self.__excel_proc__.copy_row(key_column, source_key, target_key,
-                                             self.__excel_proc__.parse_filenames(filenames_str))
-
         else:
             print(Colors.RED + "无法识别的命令" + Colors.RESET)
         return True
