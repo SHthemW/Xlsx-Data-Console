@@ -131,6 +131,7 @@ class ExcelProcessor:
                 workbook.save(os.path.join(self.__directory__, filename))
                 if require_restart:
                     start_window(os.path.join(self.__directory__, filename))
+                    print(Colors.YELLOW + f"被关闭的文件已操作完毕. 启动!" + Colors.RESET)
         if not found:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{old_field}'" + Colors.RESET)
 

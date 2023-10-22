@@ -3,9 +3,15 @@ from entities.color import Colors
 from services.excel_processor import ExcelProcessor
 from services.command_processor import InstructProcessor
 from services.command_processor import ExpressionProcessor
-from utilities.local import get_directory
+from utilities.local import get_directory, config_is_exist, create_config_file, CONFIG_PATH
 
 if __name__ == "__main__":
+
+    if not config_is_exist():
+        print(Colors.CYAN + "\n初次使用, 请初始化配置信息: " + Colors.RESET)
+        create_config_file()
+        print(Colors.GREEN + f"\n数据配置已完成. 若需更改, 请查看目录下的{CONFIG_PATH}.\n" + Colors.RESET)
+
     exp_processor = ExpressionProcessor()
     excel_processor = ExcelProcessor(get_directory())
     command_processor = InstructProcessor(excel_processor, exp_processor)
