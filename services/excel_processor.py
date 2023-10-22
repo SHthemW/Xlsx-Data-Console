@@ -75,6 +75,7 @@ class ExcelProcessor:
                                           in map(str, new_values)]
 
                         for row in worksheet.iter_rows(min_row=2):
+                            updated = False
                             for cell in row:
                                 if old_column_index is not None and new_column_index is not None:
                                     # 匹配行
@@ -86,23 +87,24 @@ class ExcelProcessor:
                                             return
                                         else:
                                             try:
-                                                for old_cell, new_cell in zip(row,
-                                                                              new_value_rows[old_values.index(str(
-                                                                                      worksheet.cell(row=cell.row,
-                                                                                                     column=old_column_index).value))]):
+                                                for old_cell, new_cell in zip(row, new_value_rows[old_values.index(str(
+                                                        worksheet.cell(row=cell.row, column=old_column_index).value))]):
+                                                    if old_cell.column == old_column_index:
+                                                        continue
                                                     old_cell.value = new_cell.value
-                                                print(
-                                                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行更新了目标' + Colors.RESET)
+                                                    updated = True
                                                 found = True
                                             except ValueError:
                                                 for old_cell, new_cell in zip(row,
                                                                               new_value_rows[old_values.index(int(
-                                                                                      worksheet.cell(row=cell.row,
-                                                                                                     column=old_column_index).value))]):
+                                                                                  worksheet.cell(row=cell.row,
+                                                                                                 column=old_column_index).value))]):
+                                                    if old_cell.column == old_column_index:
+                                                        continue
                                                     old_cell.value = new_cell.value
-                                                print(
-                                                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行更新了目标' + Colors.RESET)
+                                                    updated = True
                                                 found = True
+
                                 elif old_column_index is None and new_column_index is None:
                                     # 匹配数值
                                     if cell.value is not None:  # 添加了处理空值的判断语句
@@ -111,16 +113,18 @@ class ExcelProcessor:
                                             if int(cell.value) in map(int, old_values):
                                                 cell.value = int(new_values[0]) if len(new_values) == 1 else int(
                                                     new_values[old_values.index(int(cell.value))])
-                                                print(
-                                                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列更新了目标' + Colors.RESET)
+                                                updated = True
                                                 found = True
                                         except ValueError:
                                             # 如果转换失败，则按原来的方式进行比较
                                             if str(cell.value) in map(str, old_values):
                                                 cell.value = str(new_values[old_values.index(str(cell.value))])
-                                                print(
-                                                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列更新了目标' + Colors.RESET)
+                                                updated = True
                                                 found = True
+                            if updated:
+                                print(Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表'
+                                                     f'{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}'
+                                                     f'{cell.row:<5}{Colors.GREEN}行更新了目标' + Colors.RESET)
                     workbook.save(os.path.join(self.__directory__, filename))
                 except Exception as e:
                     print(Colors.RED + f"处理文件{filename}时发生错误: {str(e)}" + Colors.RESET)
