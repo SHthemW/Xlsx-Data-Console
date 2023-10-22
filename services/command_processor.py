@@ -8,7 +8,7 @@ class InstructProcessor:
         self.__excel_proc__ = excel_processor
         self.__exp_proc__ = expression_processor
 
-    def process_command(self, command: str) -> bool:
+    def process_command(self, command: list) -> bool:
         # basic commands
         if Command.EXIT in command:
             return False
