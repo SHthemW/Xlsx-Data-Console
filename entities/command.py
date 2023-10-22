@@ -13,3 +13,7 @@ class Keyword:
     ALL:    str = "ALL"
     EXCEPT: str = "except"
 
+    @staticmethod
+    def is_keyword(s: str):
+        return s in [Keyword.IN, Keyword.EXCEPT, Keyword.ALL, Keyword.TO]
+

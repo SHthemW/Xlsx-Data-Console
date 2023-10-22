@@ -3,7 +3,7 @@ from entities.color import Colors
 from services.excel_processor import ExcelProcessor
 from services.command_processor import InstructProcessor
 from services.command_processor import ExpressionProcessor
-from utilities.connection import get_directory
+from utilities.local import get_directory
 
 if __name__ == "__main__":
     exp_processor = ExpressionProcessor()
