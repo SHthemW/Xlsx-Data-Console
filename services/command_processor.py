@@ -1,13 +1,15 @@
 import os
 from entities.color import Colors
-from entities.command import Command
+from entities.command import Command, Keyword
+
 
 class InstructProcessor:
     def __init__(self, excel_processor, expression_processor):
         self.__excel_proc__ = excel_processor
         self.__exp_proc__ = expression_processor
 
-    def process_command(self, command) -> bool:
+    def process_command(self, command: str) -> bool:
+        # basic commands
         if Command.EXIT in command:
             return False
         elif Command.CLEAN in command:
@@ -17,24 +19,38 @@ class InstructProcessor:
             self.print_help()
             return True
 
+        # find command used to query row in files.
         if command[0].lower() == Command.FIND:
-            fields = command[1:-2] if 'in' in command or 'except' in command else command[1:]
-            filenames_str = ' '.join(command[-2:]) if 'in' in command or 'except' in command else 'ALL'
+            fields = command[1:-2] if Keyword.IN in command or Keyword.EXCEPT in command else command[1:]
+            filenames_str = ' '.join(
+                command[-2:]) if Keyword.IN in command or Keyword.EXCEPT in command else Keyword.ALL
+
             for field in fields:
                 col, val = self.__exp_proc__.parse_chunk_exp(field)
-                print(f"\n正在查找字段'{col}-{val}'的结果：")
+                print(f"\n正在查找字段'{col}-{val}'：")
                 self.__excel_proc__.search_files((col, val), self.__excel_proc__.parse_filenames(filenames_str))
 
+        # update command used to update rows in files
+        # (must assign the action scope)
         elif command[0].lower() == Command.UPDATE:
             if len(command) < 5 or (
-                    command[2].lower() != 'to' and (command[4].lower() != 'in' and command[4].lower() != 'except')):
+                    command[2].lower() != Keyword.TO and (
+                    command[4].lower() != Keyword.IN and command[4].lower() != Keyword.EXCEPT)):
                 print(Colors.RED + "更新操作必须指定作用域" + Colors.RESET)
                 return True
+
             old_field, new_field, filenames_str = command[1], command[3], ' '.join(command[4:])
             old_col, old_val = self.__exp_proc__.parse_chunk_exp(old_field)
             new_col, new_val = self.__exp_proc__.parse_chunk_exp(new_field)
-            print(f"\n正在更新字段'{old_col}-{old_val}'至'{new_val}'的结果：")
-            self.__excel_proc__.update_files((old_col, old_val), (new_col, new_val), self.__excel_proc__.parse_filenames(filenames_str))
+
+            print(f"\n正在更新字段'{old_col}-{old_val}'至'{new_val}'：")
+            self.__excel_proc__.update_files((old_col, old_val), (new_col, new_val),
+                                             self.__excel_proc__.parse_filenames(filenames_str))
+
+        # create command used to create new rows in files.
+        # (must assign the action scope)
+        elif command[0].lower() == Command.CREATE:
+            return True
 
         else:
             print(Colors.RED + "无法识别的命令" + Colors.RESET)
@@ -66,7 +82,6 @@ class InstructProcessor:
 
 
 class ExpressionProcessor:
-
     EXP_FIELD = '-'
     EXP_CHUNK = ['{', '}']
 
