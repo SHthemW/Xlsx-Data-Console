@@ -1,7 +1,7 @@
 # excel_processor.py
 import os
 import openpyxl
-from utils import Colors
+from entities.color import Colors
 
 
 class ExcelProcessor:

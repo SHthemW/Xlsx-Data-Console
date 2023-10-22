@@ -1,8 +1,9 @@
 # main.py
-from utils import Colors, get_directory
-from excel_processor import ExcelProcessor
-from command_processor import InstructProcessor
-from command_processor import ExpressionProcessor
+from entities.color import Colors
+from services.excel_processor import ExcelProcessor
+from services.command_processor import InstructProcessor
+from services.command_processor import ExpressionProcessor
+from utilities.connection import get_directory
 
 if __name__ == "__main__":
     exp_processor = ExpressionProcessor()
