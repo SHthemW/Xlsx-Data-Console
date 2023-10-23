@@ -10,7 +10,7 @@ class ExcelProcessor:
     def __init__(self, directory: str):
         self.__directory__ = directory
 
-    def search_files(self, field: tuple, filenames):
+    def search_files(self, field: tuple, filenames, show_detail: bool):
         column_name, values = field
         found = False
         for filename in os.listdir(self.__directory__):
@@ -34,12 +34,26 @@ class ExcelProcessor:
                                                 print(
                                                     Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列查找到目标' + Colors.RESET)
                                                 found = True
+                                                if show_detail:
+                                                    print('详细信息：')
+                                                    [print(
+                                                        f"{Colors.GREEN}{worksheet[c.column_letter + '1'].value:<20}: "
+                                                        f"{Colors.LIGHTYELLOW_EX}{c.value if c.value is not None else '':<10}"
+                                                        f"{Colors.RESET}") for c in row]
+                                                    print("")
                                         except ValueError:
                                             # 如果转换失败，则按原来的方式进行比较
                                             if str(cell.value) in map(str, values):
                                                 print(
                                                     Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列查找到目标' + Colors.RESET)
                                                 found = True
+                                                if show_detail:
+                                                    print('详细信息：')
+                                                    [print(
+                                                        f"{Colors.GREEN}{worksheet[c.column_letter + '1'].value:<20}: "
+                                                        f"{Colors.LIGHTYELLOW_EX}{c.value if c.value is not None else '':<10}"
+                                                        f"{Colors.RESET}") for c in row]
+                                                    print("")
                 except Exception as e:
                     print(Colors.RED + f"处理文件{filename}时发生错误: {str(e)}" + Colors.RESET)
         if not found:
@@ -136,13 +150,14 @@ class ExcelProcessor:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{old_field}'" + Colors.RESET)
 
     def parse_filenames(self, filenames_str):
+
         filenames_str = filenames_str.upper()
         all_files = [f.lower().replace('.xlsx', '') for f in os.listdir(self.__directory__) if
                      f.endswith(".xlsx") and not f.startswith("~$")]
-        if Keyword.ALL in filenames_str.split():
+        if Keyword.ALL.upper() in filenames_str.split():
             return all_files
-        elif Keyword.EXCEPT in filenames_str.split():
-            _, except_files_str = filenames_str.split(Keyword.EXCEPT)
+        elif Keyword.EXCEPT.upper() in filenames_str.split():
+            _, except_files_str = filenames_str.split(Keyword.EXCEPT.upper())
             except_files = except_files_str.lower().split()
             result = [f for f in all_files if f not in except_files]
             return result
