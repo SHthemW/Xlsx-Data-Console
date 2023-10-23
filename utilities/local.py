@@ -64,8 +64,8 @@ def get_output_space_offset() -> int:
     return int(get_config("spaceoffset"))
 
 
-def get_chinese_char_comp() -> int:
-    return int(get_config("chscharcomp"))
+def get_chinese_char_comp() -> float:
+    return float(get_config("chscharcomp"))
 
 
 def enable_auto_close() -> bool:
