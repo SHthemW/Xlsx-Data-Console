@@ -4,6 +4,7 @@ import os
 import openpyxl
 from entities.color import Colors
 from entities.command import Keyword
+from utilities.local import get_output_space_offset, get_chinese_char_comp
 from utilities.process import start_window
 
 
@@ -182,4 +183,9 @@ class ExcelProcessor:
             return count
 
         string = str(string)
-        return length - len(string.encode('GBK')) + len(string) + math.ceil(ch_count(string) / 4)
+        return (length
+                - len(string.encode('GBK'))
+                + len(string)
+                + int(ch_count(string) * get_chinese_char_comp())
+                + get_output_space_offset())
+

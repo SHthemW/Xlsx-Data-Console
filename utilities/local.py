@@ -33,6 +33,9 @@ def create_config_file():
     windowtitle = Et.SubElement(root, 'windowtitle')
     autoclose = Et.SubElement(root, 'autoclose')
     autoreset = Et.SubElement(root, 'autoreset')
+    # defaults
+    Et.SubElement(root, 'spaceoffset').text = 0
+    Et.SubElement(root, 'chscharcomp').text = 0
 
     # 从控制台获取数据并设置为元素的文本内容
     datasource.text = input('请输入数据源路径：')
@@ -55,6 +58,14 @@ def get_directory() -> str:
 
 def get_window_title_suffix() -> str:
     return get_config("windowtitle")
+
+
+def get_output_space_offset() -> int:
+    return int(get_config("spaceoffset"))
+
+
+def get_chinese_char_comp() -> int:
+    return int(get_config("chscharcomp"))
 
 
 def enable_auto_close() -> bool:
