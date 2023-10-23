@@ -25,13 +25,13 @@ class ExcelProcessor:
                         right = row[i + 1] if i + 1 < len(row) else None
                         print(
                             f"{Colors.GREEN}{worksheet[left.column_letter + '1'].value:<20}: "
-                            f"{Colors.LIGHTYELLOW_EX}{str(left.value)[:10] if left.value is not None else '':<{self.pad_len(left.value, 10)}}"
-                            f"{Colors.RESET}", end="   ")
+                            f"{Colors.LIGHTYELLOW_EX}{str(left.value)[:10] if left.value is not None else '':<10}"
+                            f"{Colors.RESET}", end="  ")
                         if not right:
                             continue
                         print(
                             f"{Colors.GREEN}{worksheet[right.column_letter + '1'].value:<20}: "
-                            f"{Colors.LIGHTYELLOW_EX}{str(right.value)[:10] if right.value is not None else '':<{self.pad_len(right.value, 10)}}"
+                            f"{Colors.LIGHTYELLOW_EX}{str(right.value)[:10] if right.value is not None else '':<10}"
                             f"{Colors.RESET}")
                     print("")
             return _found
@@ -171,15 +171,3 @@ class ExcelProcessor:
     def get_pure_filenames(filenames_str: str):
         return [name + (".xlsx" if ".xlsx" not in name else "")
                 for name in filenames_str.split() if not Keyword.is_keyword(name)]
-
-    @staticmethod
-    def pad_len(string, length):
-        def ch_count(check_str):
-            count = 0
-            for ch in check_str:
-                if '\u4e00' <= ch <= '\u9fff':
-                    count += 1
-            return count
-
-        string = str(string)
-        return length - len(string.encode('GBK')) + len(string) + math.ceil(ch_count(string) / 4)
