@@ -1,4 +1,5 @@
 # excel_processor.py
+import math
 import os
 import openpyxl
 from entities.color import Colors
@@ -11,51 +12,52 @@ class ExcelProcessor:
         self.__directory__ = directory
 
     def search_files(self, field: tuple, filenames, show_detail: bool):
+        def find_as(tgt_type: type) -> bool:
+            _found = False
+            if tgt_type(cell.value) in map(tgt_type, values):
+                print(
+                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列查找到目标' + Colors.RESET)
+                _found = True
+                if show_detail:
+                    print('详细信息：')
+                    for i in range(0, len(row), 2):
+                        left = row[i]
+                        right = row[i + 1] if i + 1 < len(row) else None
+                        print(
+                            f"{Colors.GREEN}{worksheet[left.column_letter + '1'].value:<20}: "
+                            f"{Colors.LIGHTYELLOW_EX}{str(left.value)[:10] if left.value is not None else '':<{self.pad_len(left.value, 10)}}"
+                            f"{Colors.RESET}", end="   ")
+                        if not right:
+                            continue
+                        print(
+                            f"{Colors.GREEN}{worksheet[right.column_letter + '1'].value:<20}: "
+                            f"{Colors.LIGHTYELLOW_EX}{str(right.value)[:10] if right.value is not None else '':<{self.pad_len(right.value, 10)}}"
+                            f"{Colors.RESET}")
+                    print("")
+            return _found
+
         column_name, values = field
         found = False
         for filename in os.listdir(self.__directory__):
             if filename.endswith(".xlsx") and not filename.startswith("~$") and filename.lower().replace('.xlsx',
                                                                                                          '') in filenames:
-                try:
-                    workbook = openpyxl.load_workbook(os.path.join(self.__directory__, filename))
-                    for sheet in workbook.sheetnames:
-                        worksheet = workbook[sheet]
-                        headers = [cell.value for cell in worksheet[1]]
-                        column_index = None if column_name is None else (
-                            headers.index(column_name) + 1 if column_name in headers else None)
-                        if column_index is not None or column_name is None:
-                            for row in worksheet.iter_rows(min_row=2):
-                                for cell in row:
-                                    if cell.value is not None and (
-                                            (column_index is None) or (cell.col_idx == column_index)):
-                                        try:
-                                            # 尝试将单元格值和字段都转换为整数进行比较
-                                            if int(cell.value) in map(int, values):
-                                                print(
-                                                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列查找到目标' + Colors.RESET)
-                                                found = True
-                                                if show_detail:
-                                                    print('详细信息：')
-                                                    [print(
-                                                        f"{Colors.GREEN}{worksheet[c.column_letter + '1'].value:<20}: "
-                                                        f"{Colors.LIGHTYELLOW_EX}{c.value if c.value is not None else '':<10}"
-                                                        f"{Colors.RESET}") for c in row]
-                                                    print("")
-                                        except ValueError:
-                                            # 如果转换失败，则按原来的方式进行比较
-                                            if str(cell.value) in map(str, values):
-                                                print(
-                                                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列查找到目标' + Colors.RESET)
-                                                found = True
-                                                if show_detail:
-                                                    print('详细信息：')
-                                                    [print(
-                                                        f"{Colors.GREEN}{worksheet[c.column_letter + '1'].value:<20}: "
-                                                        f"{Colors.LIGHTYELLOW_EX}{c.value if c.value is not None else '':<10}"
-                                                        f"{Colors.RESET}") for c in row]
-                                                    print("")
-                except Exception as e:
-                    print(Colors.RED + f"处理文件{filename}时发生错误: {str(e)}" + Colors.RESET)
+                workbook = openpyxl.load_workbook(os.path.join(self.__directory__, filename))
+                for sheet in workbook.sheetnames:
+                    worksheet = workbook[sheet]
+                    headers = [cell.value for cell in worksheet[1]]
+                    column_index = None if column_name is None else (
+                        headers.index(column_name) + 1 if column_name in headers else None)
+                    if column_index is not None or column_name is None:
+                        for row in worksheet.iter_rows(min_row=2):
+                            for cell in row:
+                                if cell.value is not None and (
+                                        (column_index is None) or (cell.col_idx == column_index)):
+                                    try:
+                                        # 尝试将单元格值和字段都转换为整数进行比较
+                                        if find_as(int): found = True
+                                    except ValueError:
+                                        # 如果转换失败，则按原来的方式进行比较
+                                        if find_as(str): found = True
         if not found:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{field}'" + Colors.RESET)
 
@@ -169,3 +171,15 @@ class ExcelProcessor:
     def get_pure_filenames(filenames_str: str):
         return [name + (".xlsx" if ".xlsx" not in name else "")
                 for name in filenames_str.split() if not Keyword.is_keyword(name)]
+
+    @staticmethod
+    def pad_len(string, length):
+        def ch_count(check_str):
+            count = 0
+            for ch in check_str:
+                if '\u4e00' <= ch <= '\u9fff':
+                    count += 1
+            return count
+
+        string = str(string)
+        return length - len(string.encode('GBK')) + len(string) + math.ceil(ch_count(string) / 4)
