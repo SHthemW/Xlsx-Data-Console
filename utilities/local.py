@@ -2,7 +2,7 @@ import os
 import time
 import xml.etree.ElementTree as Et
 
-CONFIG_PATH = r'../_config.xml'
+CONFIG_PATH = r'../.resx/_config.xml'
 
 
 # io
