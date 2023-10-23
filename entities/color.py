@@ -1,6 +1,5 @@
-
 # 定义颜色
-from colorama import Fore
+from colorama import Fore, init
 
 
 class Colors:
@@ -11,3 +10,7 @@ class Colors:
     YELLOW = Fore.YELLOW
     CYAN = Fore.CYAN
     RESET = Fore.RESET
+
+
+def init_color():
+    init()
