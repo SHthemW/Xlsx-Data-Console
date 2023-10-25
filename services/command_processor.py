@@ -4,6 +4,7 @@ from entities.command import Command, Keyword
 from utilities.local import get_window_title_suffix, enable_auto_close, enable_auto_restart
 from utilities.process import close_window
 
+
 class InstructProcessor:
     def __init__(self, excel_processor, expression_processor):
         self.__excel_proc__ = excel_processor
@@ -23,18 +24,19 @@ class InstructProcessor:
         # find command used to query row in files.
         if command[0].lower() == Command.FIND:
             show_detail: bool = Keyword.DETAIL in command
-            has_scope:   bool = Keyword.IN in command or Keyword.EXCEPT in command
+            has_scope: bool = Keyword.IN in command or Keyword.EXCEPT in command
 
-            fields = command[1:-1] if not has_scope and     show_detail \
-                else command[1:-2] if     has_scope and not show_detail \
-                else command[1:-3] if     has_scope and     show_detail \
-                else command[1:]   if not has_scope and not show_detail \
+            fields = command[1:-1] if not has_scope and show_detail \
+                else command[1:-2] if has_scope and not show_detail \
+                else command[1:-3] if has_scope and show_detail \
+                else command[1:] if not has_scope and not show_detail \
                 else "invalid command"
             filenames_str = ' '.join(command[-2:]) if has_scope else Keyword.ALL
             for field in fields:
                 col, val = self.__exp_proc__.parse_chunk_exp(field)
                 print(f"\n正在查找字段'{col}-{val}'：")
-                self.__excel_proc__.search_files((col, val), self.__excel_proc__.parse_filenames(filenames_str), show_detail)
+                self.__excel_proc__.search_files((col, val), self.__excel_proc__.parse_filenames(filenames_str),
+                                                 show_detail)
 
         # update command used to update rows in files
         # (must assign the action scope)
