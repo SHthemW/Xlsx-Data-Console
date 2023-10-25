@@ -31,17 +31,15 @@ def create_config_file():
     root = Et.Element('config')
     datasource = Et.SubElement(root, 'datasource')
     windowtitle = Et.SubElement(root, 'windowtitle')
-    autoclose = Et.SubElement(root, 'autoclose')
-    autoreset = Et.SubElement(root, 'autoreset')
     # defaults
     Et.SubElement(root, 'spaceoffset').text = 0
     Et.SubElement(root, 'chscharcomp').text = 0
+    Et.SubElement(root, 'autoclose').text = "True"
+    Et.SubElement(root, 'autoreset').text = "True"
 
     # 从控制台获取数据并设置为元素的文本内容
     datasource.text = input('请输入数据源路径：')
     windowtitle.text = input('请输入打开xlsx文件时窗体的后缀名：')
-    autoclose.text = input('在文件占用时, 是否自动关闭文件(True/False)：')
-    autoreset.text = input('解除占用并处理后, 是否自动打开文件(True/False)：')
 
     # 创建ElementTree对象
     tree = Et.ElementTree(root)

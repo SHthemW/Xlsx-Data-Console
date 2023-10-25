@@ -18,4 +18,5 @@ def start_window(file_path: str):
 
 if __name__ == "__main__":
     name = input()
+    print(name + get_window_title_suffix())
     close_window(name + get_window_title_suffix())

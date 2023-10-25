@@ -50,22 +50,16 @@ class InstructProcessor:
             new_col, new_val = self.__exp_proc__.parse_chunk_exp(new_field)
 
             print(f"\n正在更新字段'{old_col}-{old_val}'至'{new_val}'：")
-            try:
-                self.__excel_proc__.update_files((old_col, old_val),
-                                                 (new_col, new_val),
-                                                 self.__excel_proc__.parse_filenames(filenames_str))
-            except PermissionError as e:
-                if not enable_auto_close():
-                    raise e
+            # close
+            if enable_auto_close():
                 for filename in self.__excel_proc__.get_pure_filenames(filenames_str):
-                    print(Colors.YELLOW + f"文件'{filename}'正在占用中. 尝试将其关闭.." + Colors.RESET)
                     window_title = filename + get_window_title_suffix()
                     close_window(window_title)
-                    # try again
-                    self.__excel_proc__.update_files((old_col, old_val),
-                                                     (new_col, new_val),
-                                                     self.__excel_proc__.parse_filenames(filenames_str),
-                                                     enable_auto_restart())
+            # update
+            self.__excel_proc__.update_files((old_col, old_val),
+                                             (new_col, new_val),
+                                             self.__excel_proc__.parse_filenames(filenames_str),
+                                             enable_auto_restart())
 
         # create command used to create new rows in files.
         # (must assign the action scope)

@@ -1,16 +1,15 @@
 # excel_processor.py
-import math
 import os
 import openpyxl
 from entities.color import Colors
 from entities.command import Keyword
-from utilities.local import get_output_space_offset, get_chinese_char_comp
+from utilities.local import get_output_space_offset, get_chinese_char_comp, get_directory
 from utilities.process import start_window
 
 
 class ExcelProcessor:
     def __init__(self, directory: str):
-        self.__directory__ = directory
+        self.__directory = directory
 
     def search_files(self, field: tuple, filenames, show_detail: bool):
         def find_as(tgt_type: type) -> bool:
@@ -39,10 +38,10 @@ class ExcelProcessor:
 
         column_name, values = field
         found = False
-        for filename in os.listdir(self.__directory__):
+        for filename in os.listdir(self.__directory):
             if filename.endswith(".xlsx") and not filename.startswith("~$") and filename.lower().replace('.xlsx',
                                                                                                          '') in filenames:
-                workbook = openpyxl.load_workbook(os.path.join(self.__directory__, filename))
+                workbook = openpyxl.load_workbook(os.path.join(self.__directory, filename))
                 for sheet in workbook.sheetnames:
                     worksheet = workbook[sheet]
                     headers = [cell.value for cell in worksheet[1]]
@@ -70,11 +69,11 @@ class ExcelProcessor:
                 old_column_name is not None and new_column_name is None):
             print(Colors.RED + "错误：old_column_name 和 new_column_name 必须同时为空或非空" + Colors.RESET)
             return
-        for filename in os.listdir(self.__directory__):
+        for filename in os.listdir(self.__directory):
             if filename.endswith(".xlsx") and not filename.startswith("~$") and filename.lower().replace('.xlsx',
                                                                                                          '') in filenames:
-                workbook = openpyxl.load_workbook(os.path.join(self.__directory__, filename))
-                workbook.save(os.path.join(self.__directory__, filename))
+                workbook = openpyxl.load_workbook(os.path.join(self.__directory, filename))
+                workbook.save(os.path.join(self.__directory, filename))
 
                 for sheet in workbook.sheetnames:
                     worksheet = workbook[sheet]
@@ -145,17 +144,16 @@ class ExcelProcessor:
                             print(Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表'
                                                  f'{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}'
                                                  f'{cell.row:<5}{Colors.GREEN}行更新了目标' + Colors.RESET)
-                workbook.save(os.path.join(self.__directory__, filename))
+                workbook.save(os.path.join(self.__directory, filename))
                 if require_restart:
-                    start_window(os.path.join(self.__directory__, filename))
-                    print(Colors.YELLOW + f"被关闭的文件已操作完毕. 启动!" + Colors.RESET)
+                    start_window(os.path.join(self.__directory, filename))
         if not found:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{old_field}'" + Colors.RESET)
 
     def parse_filenames(self, filenames_str):
 
         filenames_str = filenames_str.upper()
-        all_files = [f.lower().replace('.xlsx', '') for f in os.listdir(self.__directory__) if
+        all_files = [f.lower().replace('.xlsx', '') for f in os.listdir(self.__directory) if
                      f.endswith(".xlsx") and not f.startswith("~$")]
         if Keyword.ALL.upper() in filenames_str.split():
             return all_files
@@ -168,9 +166,16 @@ class ExcelProcessor:
             result = filenames_str.lower().split()
             return result
 
-    @staticmethod
-    def get_pure_filenames(filenames_str: str):
-        return [name + (".xlsx" if ".xlsx" not in name else "")
+
+    def get_pure_filenames(self, filenames_str: str):
+        def find_matching_filename(input_str):
+            for filename in os.listdir(self.__directory):
+                if filename.split(".")[0].lower() == input_str:
+                    return filename
+            return None
+
+        return [(find_matching_filename(name) if find_matching_filename(name) else
+                (name + (".xlsx" if ".xlsx" not in name else "")))
                 for name in filenames_str.split() if not Keyword.is_keyword(name)]
 
     @staticmethod
@@ -188,4 +193,8 @@ class ExcelProcessor:
                 + len(string)
                 + int(ch_count(string) * get_chinese_char_comp())
                 + get_output_space_offset())
+
+
+if __name__ == '__main__':
+    print(ExcelProcessor(get_directory()).get_pure_filenames(input("test pure: ")))
 
