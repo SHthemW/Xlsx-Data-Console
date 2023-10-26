@@ -18,3 +18,8 @@ class Keyword:
     @staticmethod
     def is_keyword(s: str):
         return s in [Keyword.IN, Keyword.EXCEPT, Keyword.ALL, Keyword.TO, Keyword.DETAIL]
+
+
+class Expression:
+    FIELD = '-'
+    CHUNK = ['{', '}']

@@ -1,6 +1,7 @@
 import os
 from entities.color import Colors
-from entities.command import Command, Keyword
+from entities.command import Command, Keyword, Expression
+from services.command_helper import print_help
 from utilities import process
 from utilities.local import get_window_title_suffix, enable_auto_close, enable_auto_restart
 from utilities.process import close_window
@@ -31,7 +32,7 @@ class InstructProcessor:
             self.clean_console()
             return True
         elif Command.HELP in command:
-            self.print_help()
+            print_help()
             return True
 
         # find command used to query row in files.
@@ -91,9 +92,9 @@ class InstructProcessor:
                     close_window(window_title)
             # update
             result = self.__excel_proc.update_files((old_col, old_val),
-                                           (new_col, new_val),
-                                           self.__excel_proc.parse_filenames(filenames_str),
-                                           enable_auto_restart())
+                                                    (new_col, new_val),
+                                                    self.__excel_proc.parse_filenames(filenames_str),
+                                                    enable_auto_restart())
             self.latest_file_name = result
 
         # create command used to create new rows in files.
@@ -106,39 +107,18 @@ class InstructProcessor:
         return True
 
     @staticmethod
-    def print_help():
-        print(f"\n{Colors.GREEN}以下是所有可用的命令：{Colors.RESET}")
-        print(
-            f"\n{Colors.LIGHTMAGENTA_EX}{Command.FIND}{Colors.LIGHTYELLOW_EX} [field1] [field2] ... {Colors.LIGHTMAGENTA_EX}in{Colors.LIGHTYELLOW_EX} [filename1] [filename2] ...")
-        print(f"{Colors.RESET}  - 在指定的文件中查找一个或多个字段。{Colors.RESET}")
-        print(
-            f"\n{Colors.LIGHTMAGENTA_EX}{Command.FIND}{Colors.LIGHTYELLOW_EX} [field1] [field2] ... {Colors.LIGHTMAGENTA_EX}except{Colors.LIGHTYELLOW_EX} [filename1] [filename2] ...")
-        print(f"{Colors.RESET}  - 在除指定文件外的所有文件中查找一个或多个字段。{Colors.RESET}")
-        print(
-            f"\n{Colors.LIGHTMAGENTA_EX}{Command.UPDATE}{Colors.LIGHTYELLOW_EX} [old_field] {Colors.LIGHTMAGENTA_EX}to{Colors.LIGHTYELLOW_EX} [new_field] {Colors.LIGHTMAGENTA_EX}in{Colors.LIGHTYELLOW_EX} [filename1] [filename2] ...")
-        print(f"{Colors.RESET}  - 在指定的文件中将一个字段的值更新为另一个值。{Colors.RESET}")
-        print(
-            f"\n{Colors.LIGHTMAGENTA_EX}{Command.UPDATE}{Colors.LIGHTYELLOW_EX} [old_field] {Colors.LIGHTMAGENTA_EX}to{Colors.LIGHTYELLOW_EX} [new_field] {Colors.LIGHTMAGENTA_EX}except{Colors.LIGHTYELLOW_EX} [filename1] [filename2] ...")
-        print(f"{Colors.RESET}  - 在除指定文件外的所有文件中将一个字段的值更新为另一个值。{Colors.RESET}")
-        print(f"\n{Colors.LIGHTMAGENTA_EX}{Command.EXIT}{Colors.RESET}")
-        print(f"{Colors.RESET}  - 退出程序。{Colors.RESET}")
-        print(f"\n{Colors.LIGHTMAGENTA_EX}{Command.CLEAN}{Colors.RESET}")
-        print(f"{Colors.RESET}  - 清理控制台的当前显示内容。{Colors.RESET}")
-
-    @staticmethod
     def clean_console():
         os.system('cls' if os.name == 'nt' else 'clear')
 
 
 class ExpressionProcessor:
-    EXP_FIELD = '-'
-    EXP_CHUNK = ['{', '}']
 
     # -
-    def parse_field_exp(self, field: str) -> list:
+    @staticmethod
+    def parse_field_exp(field: str) -> list:
         if '-' in field:
             try:
-                start, end = map(int, field.split(self.EXP_FIELD))
+                start, end = map(int, field.split(Expression.FIELD))
                 return list(range(start, end + 1))
             except ValueError:
                 print(Colors.RED + f"输入'{field}'无法解析为数字区间，将作为字符串处理" + Colors.RESET)
@@ -148,7 +128,7 @@ class ExpressionProcessor:
 
     # { }
     def parse_chunk_exp(self, expression: str) -> tuple:
-        if expression.startswith(self.EXP_CHUNK[0]) and expression.endswith(self.EXP_CHUNK[1]):
+        if expression.startswith(Expression.CHUNK[0]) and expression.endswith(Expression.CHUNK[1]):
             key_column, val = expression[1:-1].split("=")
             return key_column, self.parse_field_exp(val)
         else:
