@@ -7,7 +7,6 @@ from utilities.process import close_window
 
 
 class InstructProcessor:
-
     __latest_file_name: str = None
 
     @property
@@ -16,6 +15,7 @@ class InstructProcessor:
 
     @latest_file_name.setter
     def latest_file_name(self, val):
+        if not val: return
         self.__latest_file_name = self.__excel_proc.get_pure_filenames(val)[0]
 
     def __init__(self, directory, excel_processor, expression_processor):
@@ -48,8 +48,9 @@ class InstructProcessor:
             for field in fields:
                 col, val = self.__exp_proc.parse_chunk_exp(field)
                 print(f"\n正在查找字段'{col}-{val}'：")
-                self.__excel_proc.search_files((col, val), self.__excel_proc.parse_filenames(filenames_str),
-                                               show_detail)
+                result = self.__excel_proc.search_files((col, val), self.__excel_proc.parse_filenames(filenames_str),
+                                                        show_detail)
+                self.latest_file_name = result
 
         # open command used to open the latest file or specified.
         elif command[0].lower() == Command.OPEN:
@@ -58,7 +59,7 @@ class InstructProcessor:
                     print(Colors.RED + "未检测到最近活跃的文件, 请尝试手动指定文件名." + Colors.RESET)
                     return True
                 process.start_window(self.latest_file_name)
-                print(Colors.GREEN + f"打开了文件{self.latest_file_name}." + Colors.RESET)
+                print(Colors.GREEN + f"最近活跃的文件为{self.latest_file_name}, 已将其打开." + Colors.RESET)
 
             elif len(command) == 2:
                 self.latest_file_name = command[1]
@@ -89,10 +90,11 @@ class InstructProcessor:
                     window_title = filename + get_window_title_suffix()
                     close_window(window_title)
             # update
-            self.__excel_proc.update_files((old_col, old_val),
+            result = self.__excel_proc.update_files((old_col, old_val),
                                            (new_col, new_val),
                                            self.__excel_proc.parse_filenames(filenames_str),
                                            enable_auto_restart())
+            self.latest_file_name = result
 
         # create command used to create new rows in files.
         # (must assign the action scope)

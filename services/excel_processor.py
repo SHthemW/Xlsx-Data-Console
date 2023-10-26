@@ -11,7 +11,7 @@ class ExcelProcessor:
     def __init__(self, directory: str):
         self.__directory = directory
 
-    def search_files(self, field: tuple, filenames, show_detail: bool):
+    def search_files(self, field: tuple, filenames, show_detail: bool) -> str:
         def find_as(tgt_type: type) -> bool:
             _found = False
             if tgt_type(cell.value) in map(tgt_type, values):
@@ -37,6 +37,7 @@ class ExcelProcessor:
             return _found
 
         column_name, values = field
+        ret_filename = None
         found = False
         for filename in os.listdir(self.__directory):
             if filename.endswith(".xlsx") and not filename.startswith("~$") and filename.lower().replace('.xlsx',
@@ -54,21 +55,45 @@ class ExcelProcessor:
                                         (column_index is None) or (cell.col_idx == column_index)):
                                     try:
                                         # 尝试将单元格值和字段都转换为整数进行比较
-                                        if find_as(int): found = True
+                                        if find_as(int):
+                                            found = True
+                                            ret_filename = filename
                                     except ValueError:
                                         # 如果转换失败，则按原来的方式进行比较
-                                        if find_as(str): found = True
+                                        if find_as(str):
+                                            found = True
+                                            ret_filename = filename
         if not found:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{field}'" + Colors.RESET)
+        return ret_filename
 
-    def update_files(self, old_field: tuple, new_field: tuple, filenames, require_restart: bool = False):
+    def update_files(self, old_field: tuple, new_field: tuple, filenames, require_restart: bool = False) -> str:
+        def update_rows(tgt_type: type) -> bool:
+            success = False
+            for old_cell, new_cell in zip(row, new_value_rows[old_values.index(tgt_type(
+                    worksheet.cell(row=cell.row, column=old_column_index).value))]):
+                if old_cell.column == old_column_index:
+                    continue
+                old_cell.value = new_cell.value
+                success = True
+            return success
+
+        def update_vals(tgt_type: type) -> bool:
+            success = False
+            if tgt_type(cell.value) in map(tgt_type, old_values):
+                cell.value = tgt_type(new_values[0]) if len(new_values) == 1 else tgt_type(
+                    new_values[old_values.index(tgt_type(cell.value))])
+                success = True
+            return success
+
         old_column_name, old_values = old_field
         new_column_name, new_values = new_field
         found = False
+        ret_filename = None
         if (old_column_name is None and new_column_name is not None) or (
                 old_column_name is not None and new_column_name is None):
             print(Colors.RED + "错误：old_column_name 和 new_column_name 必须同时为空或非空" + Colors.RESET)
-            return
+            return ret_filename
         for filename in os.listdir(self.__directory):
             if filename.endswith(".xlsx") and not filename.startswith("~$") and filename.lower().replace('.xlsx',
                                                                                                          '') in filenames:
@@ -86,7 +111,6 @@ class ExcelProcessor:
                         headers.index(new_column_name) + 1 if new_column_name in headers else None)
 
                     # 获取新值行
-
                     new_value_rows = [row for row in worksheet.iter_rows(min_row=2)
                                       if row[0].row and new_column_index
                                       and str(worksheet.cell(row=row[0].row,
@@ -103,52 +127,30 @@ class ExcelProcessor:
                                     if len(new_value_rows) != len(old_values):
                                         print(Colors.RED + f"错误：需更新的行数与new_values的数量不匹配: "
                                                            f"{len(new_value_rows)}, {len(old_values)}" + Colors.RESET)
-                                        return
-                                    else:
-                                        try:
-                                            for old_cell, new_cell in zip(row, new_value_rows[old_values.index(str(
-                                                    worksheet.cell(row=cell.row, column=old_column_index).value))]):
-                                                if old_cell.column == old_column_index:
-                                                    continue
-                                                old_cell.value = new_cell.value
-                                                updated = True
-                                            found = True
-                                        except ValueError:
-                                            for old_cell, new_cell in zip(row,
-                                                                          new_value_rows[old_values.index(int(
-                                                                              worksheet.cell(row=cell.row,
-                                                                                             column=old_column_index).value))]):
-                                                if old_cell.column == old_column_index:
-                                                    continue
-                                                old_cell.value = new_cell.value
-                                                updated = True
-                                            found = True
+                                        return ret_filename
+                                    try:
+                                        if update_rows(str): updated, found = True, True
+                                    except ValueError:
+                                        if update_rows(int): updated, found = True, True
 
                             elif old_column_index is None and new_column_index is None:
                                 # 匹配数值
-                                if cell.value is not None:  # 添加了处理空值的判断语句
+                                if cell.value is not None:
                                     try:
-                                        # 尝试将单元格值和字段都转换为整数进行比较
-                                        if int(cell.value) in map(int, old_values):
-                                            cell.value = int(new_values[0]) if len(new_values) == 1 else int(
-                                                new_values[old_values.index(int(cell.value))])
-                                            updated = True
-                                            found = True
+                                        if update_vals(int): updated, found = True, True
                                     except ValueError:
-                                        # 如果转换失败，则按原来的方式进行比较
-                                        if str(cell.value) in map(str, old_values):
-                                            cell.value = str(new_values[old_values.index(str(cell.value))])
-                                            updated = True
-                                            found = True
+                                        if update_vals(str): updated, found = True, True
                         if updated:
                             print(Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表'
                                                  f'{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}'
                                                  f'{cell.row:<5}{Colors.GREEN}行更新了目标' + Colors.RESET)
+                            ret_filename = filename
                 workbook.save(os.path.join(self.__directory, filename))
                 if require_restart:
                     start_window(os.path.join(self.__directory, filename))
         if not found:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{old_field}'" + Colors.RESET)
+        return ret_filename
 
     def parse_filenames(self, filenames_str):
 
