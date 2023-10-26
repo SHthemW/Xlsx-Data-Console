@@ -7,8 +7,8 @@ from utilities.process import close_window
 
 class InstructProcessor:
     def __init__(self, excel_processor, expression_processor):
-        self.__excel_proc__ = excel_processor
-        self.__exp_proc__ = expression_processor
+        self.__excel_proc = excel_processor
+        self.__exp_proc = expression_processor
 
     def process_command(self, command: list) -> bool:
         # basic commands
@@ -33,10 +33,10 @@ class InstructProcessor:
                 else "invalid command"
             filenames_str = ' '.join(command[-2:]) if has_scope else Keyword.ALL
             for field in fields:
-                col, val = self.__exp_proc__.parse_chunk_exp(field)
+                col, val = self.__exp_proc.parse_chunk_exp(field)
                 print(f"\n正在查找字段'{col}-{val}'：")
-                self.__excel_proc__.search_files((col, val), self.__excel_proc__.parse_filenames(filenames_str),
-                                                 show_detail)
+                self.__excel_proc.search_files((col, val), self.__excel_proc.parse_filenames(filenames_str),
+                                               show_detail)
 
         # update command used to update rows in files
         # (must assign the action scope)
@@ -48,20 +48,20 @@ class InstructProcessor:
                 return True
 
             old_field, new_field, filenames_str = command[1], command[3], ' '.join(command[4:])
-            old_col, old_val = self.__exp_proc__.parse_chunk_exp(old_field)
-            new_col, new_val = self.__exp_proc__.parse_chunk_exp(new_field)
+            old_col, old_val = self.__exp_proc.parse_chunk_exp(old_field)
+            new_col, new_val = self.__exp_proc.parse_chunk_exp(new_field)
 
             print(f"\n正在更新字段'{old_col}-{old_val}'至'{new_val}'：")
             # close
             if enable_auto_close():
-                for filename in self.__excel_proc__.get_pure_filenames(filenames_str):
+                for filename in self.__excel_proc.get_pure_filenames(filenames_str):
                     window_title = filename + get_window_title_suffix()
                     close_window(window_title)
             # update
-            self.__excel_proc__.update_files((old_col, old_val),
-                                             (new_col, new_val),
-                                             self.__excel_proc__.parse_filenames(filenames_str),
-                                             enable_auto_restart())
+            self.__excel_proc.update_files((old_col, old_val),
+                                           (new_col, new_val),
+                                           self.__excel_proc.parse_filenames(filenames_str),
+                                           enable_auto_restart())
 
         # create command used to create new rows in files.
         # (must assign the action scope)
