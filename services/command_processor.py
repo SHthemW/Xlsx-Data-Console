@@ -1,12 +1,25 @@
 import os
 from entities.color import Colors
 from entities.command import Command, Keyword
+from utilities import process
 from utilities.local import get_window_title_suffix, enable_auto_close, enable_auto_restart
 from utilities.process import close_window
 
 
 class InstructProcessor:
-    def __init__(self, excel_processor, expression_processor):
+
+    __latest_file_name: str = None
+
+    @property
+    def latest_file_name(self) -> str:
+        return f"{self.__directory}\\{self.__latest_file_name}"
+
+    @latest_file_name.setter
+    def latest_file_name(self, val):
+        self.__latest_file_name = self.__excel_proc.get_pure_filenames(val)[0]
+
+    def __init__(self, directory, excel_processor, expression_processor):
+        self.__directory = directory
         self.__excel_proc = excel_processor
         self.__exp_proc = expression_processor
 
@@ -37,6 +50,24 @@ class InstructProcessor:
                 print(f"\n正在查找字段'{col}-{val}'：")
                 self.__excel_proc.search_files((col, val), self.__excel_proc.parse_filenames(filenames_str),
                                                show_detail)
+
+        # open command used to open the latest file or specified.
+        elif command[0].lower() == Command.OPEN:
+            if len(command) < 2:
+                if not self.__latest_file_name:
+                    print(Colors.RED + "未检测到最近活跃的文件, 请尝试手动指定文件名." + Colors.RESET)
+                    return True
+                process.start_window(self.latest_file_name)
+                print(Colors.GREEN + f"打开了文件{self.latest_file_name}." + Colors.RESET)
+
+            elif len(command) == 2:
+                self.latest_file_name = command[1]
+                process.start_window(self.latest_file_name)
+                print(Colors.GREEN + f"打开了文件{self.latest_file_name}." + Colors.RESET)
+
+            else:
+                print(Colors.RED + f"格式错误: 输入 {Command.HELP} 以查看帮助." + Colors.RESET)
+            return True
 
         # update command used to update rows in files
         # (must assign the action scope)
@@ -69,7 +100,7 @@ class InstructProcessor:
             return True
 
         else:
-            print(Colors.RED + "无法识别的命令" + Colors.RESET)
+            print(Colors.RED + f"无法识别的命令: {command[0]}" + Colors.RESET)
         return True
 
     @staticmethod

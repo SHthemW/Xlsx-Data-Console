@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
         exp_processor = ExpressionProcessor()
         excel_processor = ExcelProcessor(get_directory())
-        command_processor = InstructProcessor(excel_processor, exp_processor)
+        command_processor = InstructProcessor(get_directory(), excel_processor, exp_processor)
         command_processor.clean_console()
 
         while True:

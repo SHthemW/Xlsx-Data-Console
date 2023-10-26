@@ -2,6 +2,7 @@ class Command:
     FIND: str = "find"
     EXIT: str = "exit"
     HELP: str = "help"
+    OPEN: str = "open"
     CLEAN: str = "clean"
     UPDATE: str = "update"
     CREATE: str = "create"
