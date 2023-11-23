@@ -168,7 +168,6 @@ class ExcelProcessor:
             result = filenames_str.lower().split()
             return result
 
-
     def get_pure_filenames(self, filenames_str: str):
         def find_matching_filename(input_str):
             for filename in os.listdir(self.__directory):
@@ -177,7 +176,7 @@ class ExcelProcessor:
             return None
 
         return [(find_matching_filename(name) if find_matching_filename(name) else
-                (name + (".xlsx" if ".xlsx" not in name else "")))
+                 (name + (".xlsx" if ".xlsx" not in name else "")))
                 for name in filenames_str.split() if not Keyword.is_keyword(name)]
 
     @staticmethod
@@ -190,13 +189,13 @@ class ExcelProcessor:
             return count
 
         string = str(string)
-        return (length
-                - len(string.encode('GBK'))
-                + len(string)
-                + int(ch_count(string) * get_chinese_char_comp())
-                + get_output_space_offset())
+        result = (length
+                  - len(string.encode('GBK'))
+                  + len(string)
+                  + int(ch_count(string) * get_chinese_char_comp())
+                  + get_output_space_offset())
+        return max(0, result)
 
 
 if __name__ == '__main__':
     print(ExcelProcessor(get_directory()).get_pure_filenames(input("test pure: ")))
-
