@@ -26,5 +26,5 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(Colors.RED + f"程序执行时发生错误: {str(e)}" + Colors.RESET)
+        input("\npress any key to continue...")
         raise e
-
