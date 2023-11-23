@@ -12,12 +12,12 @@ class Keyword:
     TO: str = "to"
     IN: str = "in"
     ALL: str = "ALL"
-    DETAIL: str = "detail"
+    SIMPLE: str = "simple"
     EXCEPT: str = "except"
 
     @staticmethod
     def is_keyword(s: str):
-        return s in [Keyword.IN, Keyword.EXCEPT, Keyword.ALL, Keyword.TO, Keyword.DETAIL]
+        return s in [Keyword.IN, Keyword.EXCEPT, Keyword.ALL, Keyword.TO, Keyword.SIMPLE]
 
 
 class Expression:
