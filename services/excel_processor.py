@@ -12,9 +12,9 @@ class ExcelProcessor:
         self.__directory = directory
 
     def search_files(self, field: tuple, filenames, show_detail: bool) -> str:
-        def find_as(tgt_type: type) -> bool:
+        def find_as_str() -> bool:
             _found = False
-            if tgt_type(cell.value) in map(tgt_type, values):
+            if any(tgt_value in str(cell.value) for tgt_value in map(str, values)):
                 print(
                     Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列查找到目标' + Colors.RESET)
                 _found = True
@@ -24,14 +24,14 @@ class ExcelProcessor:
                         left = row[i]
                         right = row[i + 1] if i + 1 < len(row) else None
                         print(
-                            f"{Colors.GREEN}{worksheet[left.column_letter + '1'].value:<20}: "
-                            f"{Colors.LIGHTYELLOW_EX}{str(left.value)[:10] if left.value is not None else '':<{self.pad_len(left.value, 10)}}"
+                            f"{Colors.GREEN}{worksheet[left.column_letter + '1'].value or '':<20}: "
+                            f"{Colors.LIGHTYELLOW_EX}{str(left.value)[:10] or '':<{self.pad_len(left.value, 10)}}"
                             f"{Colors.RESET}", end="   ")
                         if not right:
                             continue
                         print(
-                            f"{Colors.GREEN}{worksheet[right.column_letter + '1'].value:<20}: "
-                            f"{Colors.LIGHTYELLOW_EX}{str(right.value)[:10] if right.value is not None else '':<{self.pad_len(right.value, 10)}}"
+                            f"{Colors.GREEN}{worksheet[right.column_letter + '1'].value or '':<20}: "
+                            f"{Colors.LIGHTYELLOW_EX}{str(right.value)[:10] or '':<{self.pad_len(right.value, 10)}}"
                             f"{Colors.RESET}")
                     print("")
             return _found
@@ -53,16 +53,10 @@ class ExcelProcessor:
                             for cell in row:
                                 if cell.value is not None and (
                                         (column_index is None) or (cell.col_idx == column_index)):
-                                    try:
-                                        # 尝试将单元格值和字段都转换为整数进行比较
-                                        if find_as(int):
-                                            found = True
-                                            ret_filename = filename
-                                    except ValueError:
-                                        # 如果转换失败，则按原来的方式进行比较
-                                        if find_as(str):
-                                            found = True
-                                            ret_filename = filename
+                                    # 尝试将单元格值和字段都转换为str进行比较
+                                    if find_as_str():
+                                        found = True
+                                        ret_filename = filename
         if not found:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{field}'" + Colors.RESET)
         return ret_filename
