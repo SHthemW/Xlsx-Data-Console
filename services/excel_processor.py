@@ -12,6 +12,14 @@ class ExcelProcessor:
         self.__directory = directory
 
     def search_files(self, field: tuple, filenames, show_detail: bool) -> str:
+
+        def get_color(s, key_val) -> str:
+            value_str = str(s)
+            for tgt_value in map(str, key_val):
+                if tgt_value in value_str:
+                    return Colors.RED
+            return Colors.LIGHTYELLOW_EX
+
         def find_as_str() -> bool:
             _found = False
             if any(tgt_value in str(cell.value) for tgt_value in map(str, values)):
@@ -21,17 +29,21 @@ class ExcelProcessor:
                 if show_detail:
                     print('详细信息：')
                     for i in range(0, len(row), 2):
+                        # calc val
                         left = row[i]
                         right = row[i + 1] if i + 1 < len(row) else None
+                        # print
+                        left_color = get_color(left.value, values)
                         print(
                             f"{Colors.GREEN}{worksheet[left.column_letter + '1'].value or '':<20}: "
-                            f"{Colors.LIGHTYELLOW_EX}{str(left.value)[:10] or '':<{self.pad_len(left.value, 10)}}"
+                            f"{left_color}{str(left.value)[:10] or '':<{self.pad_len(left.value, 10)}}"
                             f"{Colors.RESET}", end="   ")
                         if not right:
                             continue
+                        right_color = get_color(right.value, values)
                         print(
                             f"{Colors.GREEN}{worksheet[right.column_letter + '1'].value or '':<20}: "
-                            f"{Colors.LIGHTYELLOW_EX}{str(right.value)[:10] or '':<{self.pad_len(right.value, 10)}}"
+                            f"{right_color}{str(right.value)[:10] or '':<{self.pad_len(right.value, 10)}}"
                             f"{Colors.RESET}")
                     print("")
             return _found
