@@ -32,8 +32,8 @@ def create_config_file():
     datasource = Et.SubElement(root, 'datasource')
     windowtitle = Et.SubElement(root, 'windowtitle')
     # defaults
-    Et.SubElement(root, 'spaceoffset').text = 0
-    Et.SubElement(root, 'chscharcomp').text = 0
+    Et.SubElement(root, 'spaceoffset').text = "0"
+    Et.SubElement(root, 'chscharcomp').text = "0"
     Et.SubElement(root, 'autoclose').text = "True"
     Et.SubElement(root, 'autoreset').text = "True"
 
