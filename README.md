@@ -1,5 +1,5 @@
 # Xlsx-Data-Console 中文文档
-To view English document, please access on: https://www.baidu.com
+To view English document, please access on: https://translate.google.com/
 
 XlDb是简易的数据库服务程序, 它支持以xlsx表格文件为数据源, 并构造简易数据库服务. 您可以方便的使用该程序查找多个xlsx表格文件中的特定关键字, 或是实现批量条件修改等功能.
 
