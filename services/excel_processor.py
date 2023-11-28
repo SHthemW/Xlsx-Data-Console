@@ -2,7 +2,7 @@
 import os
 import openpyxl
 from entities.color import Colors
-from entities.command import KeywordName
+from entities.command.legacy import KeywordName
 from utilities.local import get_output_space_offset, get_chinese_char_comp, get_directory
 from utilities.process import start_window
 

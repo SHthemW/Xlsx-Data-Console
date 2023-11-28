@@ -1,7 +1,7 @@
 from typing import List
 
 from entities.color import Colors
-from entities.command import CommandName, Expression, KeywordName
+from entities.command.legacy import CommandName, Expression, KeywordName
 
 
 class HelpType:

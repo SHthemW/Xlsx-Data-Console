@@ -1,6 +1,6 @@
 import os
 from entities.color import Colors
-from entities.command import CommandName, KeywordName, Expression
+from entities.command.legacy import CommandName, KeywordName, Expression
 from services.command_helper import print_help
 from utilities import process
 from utilities.local import get_window_title_suffix, enable_auto_close, enable_auto_restart
