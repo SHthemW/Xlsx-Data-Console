@@ -11,20 +11,6 @@ from utilities.process import close_window
 class InstructProcessor:
     __latest_file_name: str = None
 
-    @property
-    def latest_file_name(self) -> str:
-        return f"{self.__directory}\\{self.__latest_file_name}"
-
-    @latest_file_name.setter
-    def latest_file_name(self, val):
-        if not val: return
-        self.__latest_file_name = self.__excel_proc.get_pure_filenames(val)[0]
-
-    def __init__(self, directory, excel_processor, expression_processor):
-        self.__directory = directory
-        self.__excel_proc = excel_processor
-        self.__exp_proc = expression_processor
-
     def process_command(self, command: list) -> bool:
         # basic commands
         if CommandName.EXIT in command:

@@ -1,8 +1,9 @@
-import main
 from entities.command.interface import Command
 from typing import List, final
 from entities.expression import expr_range
 from entities.expression import expr_scope
+from services import excel_processor
+
 
 @final
 class FindCommand(Command):
@@ -23,11 +24,12 @@ class FindCommand(Command):
 
     def execute(self) -> bool:
         for to_find in self.__find_target:
-            col, val = None, to_find
+            col, val = None, [to_find]
             print(f"\n正在查找字段'{col}-{val}'：")
-            result = main.excel_processor.search_files(
+            print(self.__file_scope)
+            result = excel_processor.instance.search_files(
                 field=(col, val),
-                filenames=main.excel_processor.parse_file_scope(self.__file_scope),
+                filenames=excel_processor.instance.parse_file_scope(self.__file_scope),
                 show_detail=not self.__simple_find
             )
         return True
@@ -49,6 +51,6 @@ class FindCommand(Command):
 
 
 if __name__ == "__main__":
-    cmd = FindCommand(["114514-114516", "191981", "--s", "in", "abc.xlsx"])
+    cmd = FindCommand(["Unity"])
     cmd.execute()
     cmd.debug()

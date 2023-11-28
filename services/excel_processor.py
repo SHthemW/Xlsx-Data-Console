@@ -5,13 +5,16 @@ from entities.color import Colors
 from entities.command.legacy import KeywordName
 from utilities.local import get_output_space_offset, get_chinese_char_comp, get_directory
 from utilities.process import start_window
+from typing import Tuple
 
+# singleton
+instance = None
 
 class ExcelProcessor:
     def __init__(self, directory: str):
         self.__directory = directory
 
-    def search_files(self, field: tuple, filenames, show_detail: bool) -> str:
+    def search_files(self, field: Tuple[str, str], filenames, show_detail: bool) -> str:
 
         def get_color(s, key_val) -> str:
             value_str = str(s)
@@ -181,12 +184,12 @@ class ExcelProcessor:
             return all_files
 
         if scope[0] is True:
-            in_files = scope[1]
+            in_files = [f.lower() for f in scope[1]]
             result = [f for f in all_files if f in in_files]
             return result
 
         if scope[0] is False:
-            except_files = scope[1]
+            except_files = [f.lower() for f in scope[1]]
             result = [f for f in all_files if f not in except_files]
             return result
 

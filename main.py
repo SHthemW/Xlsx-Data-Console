@@ -1,8 +1,9 @@
 # main.py
 from entities.color import Colors, init_color
-from services.excel_processor import ExcelProcessor
+from services import excel_processor
 from services.command_processor import InstructProcessor
 from services.command_processor import ExpressionProcessor
+from services.excel_processor import ExcelProcessor
 from utilities.local import get_directory, config_is_exist, create_config_file, CONFIG_PATH
 
 if __name__ == "__main__":
@@ -15,8 +16,8 @@ if __name__ == "__main__":
             print(Colors.GREEN + f"\n数据配置已完成. 若需更改, 请查看目录下的{CONFIG_PATH}.\n" + Colors.RESET)
 
         exp_processor = ExpressionProcessor()
-        excel_processor = ExcelProcessor(get_directory())
-        command_processor = InstructProcessor(get_directory(), excel_processor, exp_processor)
+        excel_processor.instance = ExcelProcessor(get_directory())
+        command_processor = InstructProcessor()
         command_processor.clean_console()
 
         while True:
