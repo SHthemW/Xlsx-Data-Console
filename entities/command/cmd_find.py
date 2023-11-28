@@ -1,14 +1,10 @@
 from entities.command.interface import Command
 from typing import List, final
 from entities.expression import expr_range
-
+from entities.expression import expr_scope
 
 @final
 class FindCommand(Command):
-
-    # find FIELD --simple
-    # find FILED --s
-    # find FIELD --s
 
     @property
     def cmd_keywords(self) -> List[str]:
@@ -18,14 +14,14 @@ class FindCommand(Command):
     def help_message(self) -> str:
         return ""
 
-    def __init__(self, *args: str):
-        super().__init__(*args)
-        # properties
-        self.find_target: list = self.parse_filenames()
-        self.simple_find: bool = any(arg in self._args for arg in ["simple", "s"])
-        self.find_scopes: list = []
+    def __init__(self, args: List[str]):
+        self.__file_scope: tuple = expr_scope.try_parse_scope(args)
+        super().__init__(args)
+        self.__find_target: list = self.parse_filenames()
+        self.__simple_find: bool = any(arg in self._args for arg in ["simple", "s"])
 
     def execute(self) -> bool:
+
         return True
 
     def parse_filenames(self) -> List[str]:
@@ -38,11 +34,13 @@ class FindCommand(Command):
         return result
 
     def debug(self):
-        super(FindCommand, self).debug()
-        print("target:", self.find_target)
+        super().debug()
+        print("simple:", self.__simple_find)
+        print("target:", self.__find_target)
+        print("scopes:", self.__file_scope)
 
 
 if __name__ == "__main__":
-    cmd = FindCommand("114514-114516", "191981", "--s", "--f")
+    cmd = FindCommand(["114514-114516", "191981", "--s", "in", "abc.xlsx"])
     cmd.execute()
     cmd.debug()

@@ -23,9 +23,9 @@ class Command:
 
     # command core
 
-    def __init__(self, *args: str):
-        self._args   = [arg.replace(ARGS_IDENTIFIER, "") for arg in args if arg.startswith(ARGS_IDENTIFIER)]
-        self._fields = [arg for arg in args if not arg.startswith(ARGS_IDENTIFIER)]
+    def __init__(self, fields: List[str]):
+        self._args   = [f.replace(ARGS_IDENTIFIER, "") for f in fields if f.startswith(ARGS_IDENTIFIER)]
+        self._fields = [f for f in fields if not f.startswith(ARGS_IDENTIFIER)]
 
     @abstractmethod
     def execute(self) -> bool:
