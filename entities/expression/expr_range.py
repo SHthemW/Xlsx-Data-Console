@@ -2,6 +2,12 @@ from typing import List
 
 
 def parse_digit_range(field: str) -> List[str]:
+    """
+    range expr such as:
+    [1001-1003] => [1001, 1002, 1003]
+    :param field: a expression field to be parse
+    :return: parsed ranges.
+    """
     if '-' not in field:
         raise ValueError(f"invalid syntax: {field} is not a range expr")
 
