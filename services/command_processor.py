@@ -1,5 +1,6 @@
 import os
 from entities.color import Colors
+from entities.command.cmd_find import FindCommand
 from entities.command.legacy import CommandName, KeywordName, Expression
 from services.command_helper import print_help
 from utilities import process
@@ -37,21 +38,7 @@ class InstructProcessor:
 
         # find command used to query row in files.
         if command[0].lower() == CommandName.FIND:
-            simple_only: bool = KeywordName.SIMPLE in command
-            has_scope: bool = KeywordName.IN in command or KeywordName.EXCEPT in command
-
-            fields = command[1:-1] if not has_scope and simple_only \
-                else command[1:-2] if has_scope and not simple_only \
-                else command[1:-3] if has_scope and simple_only \
-                else command[1:] if not has_scope and not simple_only \
-                else "invalid command"
-            filenames_str = ' '.join(command[-2:]) if has_scope else KeywordName.ALL
-            for field in fields:
-                col, val = self.__exp_proc.parse_chunk_exp(field)
-                print(f"\n正在查找字段'{col}-{val}'：")
-                result = self.__excel_proc.search_files((col, val), self.__excel_proc.parse_filenames(filenames_str),
-                                                        not simple_only)
-                self.latest_file_name = result
+            return FindCommand(command[1::]).execute()
 
         # open command used to open the latest file or specified.
         elif command[0].lower() == CommandName.OPEN:

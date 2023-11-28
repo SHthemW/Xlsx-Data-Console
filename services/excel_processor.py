@@ -174,6 +174,22 @@ class ExcelProcessor:
             result = filenames_str.lower().split()
             return result
 
+    def parse_file_scope(self, scope: tuple) -> list:
+        all_files = [f.lower().replace('.xlsx', '') for f in os.listdir(self.__directory) if
+                     f.endswith(".xlsx") and not f.startswith("~$")]
+        if not scope:
+            return all_files
+
+        if scope[0] is True:
+            in_files = scope[1]
+            result = [f for f in all_files if f in in_files]
+            return result
+
+        if scope[0] is False:
+            except_files = scope[1]
+            result = [f for f in all_files if f not in except_files]
+            return result
+
     def get_pure_filenames(self, filenames_str: str):
         def find_matching_filename(input_str):
             for filename in os.listdir(self.__directory):

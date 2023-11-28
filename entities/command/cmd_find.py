@@ -1,3 +1,4 @@
+import main
 from entities.command.interface import Command
 from typing import List, final
 from entities.expression import expr_range
@@ -21,7 +22,14 @@ class FindCommand(Command):
         self.__simple_find: bool = any(arg in self._args for arg in ["simple", "s"])
 
     def execute(self) -> bool:
-
+        for to_find in self.__find_target:
+            col, val = None, to_find
+            print(f"\n正在查找字段'{col}-{val}'：")
+            result = main.excel_processor.search_files(
+                field=(col, val),
+                filenames=main.excel_processor.parse_file_scope(self.__file_scope),
+                show_detail=not self.__simple_find
+            )
         return True
 
     def parse_filenames(self) -> List[str]:
