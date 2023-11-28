@@ -1,7 +1,7 @@
 from typing import List
 
 from entities.color import Colors
-from entities.command import Command, Expression, Keyword
+from entities.command import CommandName, Expression, KeywordName
 
 
 class HelpType:
@@ -12,30 +12,30 @@ class HelpType:
 def print_help():
     print(f"\n{Colors.GREEN}目前可用的命令：{Colors.RESET}")
     print_help_message(
-        HelpType.COMMAND, Command.FIND,
+        HelpType.COMMAND, CommandName.FIND,
         ['find command is used for finding value.',
          'you can also write <scope statement> as an option.'],
         ['find [value]', 'find [value] in [filename]']
     )
     print_help_message(
-        HelpType.COMMAND, Command.OPEN,
+        HelpType.COMMAND, CommandName.OPEN,
         ['open command is used for open a file.',
          'the argument is a option to appoint a file name, no-args will automatic choose the latest file.'],
         ['open', 'open [filename]']
     )
     print_help_message(
-        HelpType.COMMAND, Command.UPDATE,
+        HelpType.COMMAND, CommandName.UPDATE,
         ['update command is used for update some values or rows.',
          'use normal value to match values, and {} expr to match rows.',
          'Note: the <scope statement> expr is REQUIREMENT in update command.'],
         ['update [origValue] to [targetValue] in [filename]']
     )
     print_help_message(
-        HelpType.COMMAND, Command.EXIT,
+        HelpType.COMMAND, CommandName.EXIT,
         ['exit the program immediately.'],
     )
     print_help_message(
-        HelpType.COMMAND, Command.CLEAN,
+        HelpType.COMMAND, CommandName.CLEAN,
         ['clean the console texts that already showed.'],
     )
     print(f"\n{Colors.GREEN}表达式：{Colors.RESET}")
@@ -61,14 +61,14 @@ def print_help_message(cmd_type: str, cmd_name: str, message: List[str], example
     print(f"Examples:")
     for line in example:
         print("    " + " ".join(
-            [f'{Colors.LIGHTMAGENTA_EX if (word == cmd_name or Keyword.is_keyword(word)) else Colors.RESET}'
+            [f'{Colors.LIGHTMAGENTA_EX if (word == cmd_name or KeywordName.is_keyword(word)) else Colors.RESET}'
              f'{word}{Colors.RESET}'
              for word in line.split()]))
 
 
 if __name__ == '__main__':
     print_help_message(
-        "Command", Command.FIND,
+        "Command", CommandName.FIND,
         ['find command is used for finding value.', 'you can also write <scope statement> as an option.'],
         ['find [value]', 'find [value] in [filename]']
     )

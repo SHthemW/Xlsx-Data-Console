@@ -1,6 +1,6 @@
 import os
 from entities.color import Colors
-from entities.command import Command, Keyword, Expression
+from entities.command import CommandName, KeywordName, Expression
 from services.command_helper import print_help
 from utilities import process
 from utilities.local import get_window_title_suffix, enable_auto_close, enable_auto_restart
@@ -26,26 +26,26 @@ class InstructProcessor:
 
     def process_command(self, command: list) -> bool:
         # basic commands
-        if Command.EXIT in command:
+        if CommandName.EXIT in command:
             return False
-        elif Command.CLEAN in command:
+        elif CommandName.CLEAN in command:
             self.clean_console()
             return True
-        elif Command.HELP in command:
+        elif CommandName.HELP in command:
             print_help()
             return True
 
         # find command used to query row in files.
-        if command[0].lower() == Command.FIND:
-            simple_only: bool = Keyword.SIMPLE in command
-            has_scope: bool = Keyword.IN in command or Keyword.EXCEPT in command
+        if command[0].lower() == CommandName.FIND:
+            simple_only: bool = KeywordName.SIMPLE in command
+            has_scope: bool = KeywordName.IN in command or KeywordName.EXCEPT in command
 
             fields = command[1:-1] if not has_scope and simple_only \
                 else command[1:-2] if has_scope and not simple_only \
                 else command[1:-3] if has_scope and simple_only \
                 else command[1:] if not has_scope and not simple_only \
                 else "invalid command"
-            filenames_str = ' '.join(command[-2:]) if has_scope else Keyword.ALL
+            filenames_str = ' '.join(command[-2:]) if has_scope else KeywordName.ALL
             for field in fields:
                 col, val = self.__exp_proc.parse_chunk_exp(field)
                 print(f"\n正在查找字段'{col}-{val}'：")
@@ -54,7 +54,7 @@ class InstructProcessor:
                 self.latest_file_name = result
 
         # open command used to open the latest file or specified.
-        elif command[0].lower() == Command.OPEN:
+        elif command[0].lower() == CommandName.OPEN:
             if len(command) < 2:
                 if not self.__latest_file_name:
                     print(Colors.RED + "未检测到最近活跃的文件, 请尝试手动指定文件名." + Colors.RESET)
@@ -68,15 +68,15 @@ class InstructProcessor:
                 print(Colors.GREEN + f"打开了文件{self.latest_file_name}." + Colors.RESET)
 
             else:
-                print(Colors.RED + f"格式错误: 输入 {Command.HELP} 以查看帮助." + Colors.RESET)
+                print(Colors.RED + f"格式错误: 输入 {CommandName.HELP} 以查看帮助." + Colors.RESET)
             return True
 
         # update command used to update rows in files
         # (must assign the action scope)
-        elif command[0].lower() == Command.UPDATE:
+        elif command[0].lower() == CommandName.UPDATE:
             if len(command) < 5 or (
-                    command[2].lower() != Keyword.TO and (
-                    command[4].lower() != Keyword.IN and command[4].lower() != Keyword.EXCEPT)):
+                    command[2].lower() != KeywordName.TO and (
+                    command[4].lower() != KeywordName.IN and command[4].lower() != KeywordName.EXCEPT)):
                 print(Colors.RED + "更新操作必须指定作用域" + Colors.RESET)
                 return True
 
@@ -99,7 +99,7 @@ class InstructProcessor:
 
         # create command used to create new rows in files.
         # (must assign the action scope)
-        elif command[0].lower() == Command.CREATE:
+        elif command[0].lower() == CommandName.CREATE:
             return True
 
         else:

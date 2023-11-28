@@ -1,4 +1,4 @@
-class Command:
+class CommandName:
     FIND: str = "find"
     EXIT: str = "exit"
     HELP: str = "help"
@@ -8,7 +8,7 @@ class Command:
     CREATE: str = "create"
 
 
-class Keyword:
+class KeywordName:
     TO: str = "to"
     IN: str = "in"
     ALL: str = "ALL"
@@ -17,7 +17,7 @@ class Keyword:
 
     @staticmethod
     def is_keyword(s: str):
-        return s in [Keyword.IN, Keyword.EXCEPT, Keyword.ALL, Keyword.TO, Keyword.SIMPLE]
+        return s in [KeywordName.IN, KeywordName.EXCEPT, KeywordName.ALL, KeywordName.TO, KeywordName.SIMPLE]
 
 
 class Expression:

@@ -2,7 +2,7 @@
 import os
 import openpyxl
 from entities.color import Colors
-from entities.command import Keyword
+from entities.command import KeywordName
 from utilities.local import get_output_space_offset, get_chinese_char_comp, get_directory
 from utilities.process import start_window
 
@@ -163,10 +163,10 @@ class ExcelProcessor:
         filenames_str = filenames_str.upper()
         all_files = [f.lower().replace('.xlsx', '') for f in os.listdir(self.__directory) if
                      f.endswith(".xlsx") and not f.startswith("~$")]
-        if Keyword.ALL.upper() in filenames_str.split():
+        if KeywordName.ALL.upper() in filenames_str.split():
             return all_files
-        elif Keyword.EXCEPT.upper() in filenames_str.split():
-            _, except_files_str = filenames_str.split(Keyword.EXCEPT.upper())
+        elif KeywordName.EXCEPT.upper() in filenames_str.split():
+            _, except_files_str = filenames_str.split(KeywordName.EXCEPT.upper())
             except_files = except_files_str.lower().split()
             result = [f for f in all_files if f not in except_files]
             return result
@@ -183,7 +183,7 @@ class ExcelProcessor:
 
         return [(find_matching_filename(name) if find_matching_filename(name) else
                  (name + (".xlsx" if ".xlsx" not in name else "")))
-                for name in filenames_str.split() if not Keyword.is_keyword(name)]
+                for name in filenames_str.split() if not KeywordName.is_keyword(name)]
 
     @staticmethod
     def pad_len(string, length):
