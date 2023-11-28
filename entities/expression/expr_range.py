@@ -1,5 +1,6 @@
 from typing import List
 
+RANGE_SPLIT_CHAR: str = '-'
 
 def parse_digit_range(field: str) -> List[str]:
     """
@@ -8,10 +9,10 @@ def parse_digit_range(field: str) -> List[str]:
     :param field: a expression field to be parse
     :return: parsed ranges.
     """
-    if '-' not in field:
+    if RANGE_SPLIT_CHAR not in field:
         raise ValueError(f"invalid syntax: {field} is not a range expr")
 
-    start_end = field.split("-")
+    start_end = field.split(RANGE_SPLIT_CHAR)
 
     if len(start_end) > 2:
         raise ValueError(f"invalid syntax: {field} has too much field.")
