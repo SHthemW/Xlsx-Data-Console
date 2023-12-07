@@ -1,6 +1,8 @@
 # excel_processor.py
 import os
 import openpyxl
+from openpyxl.chartsheet import Chartsheet
+
 from entities.color import Colors
 from entities.command import Keyword
 from utilities.local import get_output_space_offset, get_chinese_char_comp, get_directory
@@ -57,6 +59,8 @@ class ExcelProcessor:
                 workbook = openpyxl.load_workbook(os.path.join(self.__directory, filename))
                 for sheet in workbook.sheetnames:
                     worksheet = workbook[sheet]
+                    if isinstance(worksheet, Chartsheet):
+                        continue
                     headers = [cell.value for cell in worksheet[1]]
                     column_index = None if column_name is None else (
                         headers.index(column_name) + 1 if column_name in headers else None)
