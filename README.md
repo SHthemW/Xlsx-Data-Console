@@ -65,10 +65,10 @@ python下载链接: https://www.python.org/downloads/
 - 范围语句块:  
 
     在指定表格文件中查找:
-    > ```find FieldName in XXX.xlsx```  
+    > ```find FieldName in XXX(.xlsx)```  
 
-    在除了指定表格外的所有文件中查找:
-    > ```find FieldName except XXX.xlsx```
+    在除了指定表格外的所有文件中查找 (在查询一个字段的来源时非常有用):
+    > ```find FieldName except XXX(.xlsx)```
 
 - 连续查找表达式:
 
