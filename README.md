@@ -19,6 +19,12 @@ python下载链接: https://www.python.org/downloads/
 
 打开程序的安装目录, 双击```startup.bat```即可进入程序.
 
+如果此时提示"模块XXX"不存在, 表示缺少该python库. 在Windows-cmd命令行中输入
+
+    pip install 模块名
+
+即可安装对应的包.
+
 初次运行时, 你会看到如下配置信息窗口:
 
 ![](.resx/readme_imgs/welcome.jpg)
