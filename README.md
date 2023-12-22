@@ -17,7 +17,12 @@ python下载链接: https://www.python.org/downloads/
 
 ## 开始
 
-打开程序的安装目录, 双击```startup.bat```即可进入程序.
+在git命令行中直接clone项目到本地:
+
+    git clone https://github.com/SHthemW/Xlsx-Data-Console.git
+
+
+打开程序的目录, 双击```startup.bat```即可进入程序.
 
 如果此时提示"模块XXX"不存在, 表示缺少该python库. 在Windows-cmd命令行中输入
 
