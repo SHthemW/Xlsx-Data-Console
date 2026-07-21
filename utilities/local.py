@@ -32,8 +32,6 @@ def create_config_file():
     datasource = Et.SubElement(root, 'datasource')
     windowtitle = Et.SubElement(root, 'windowtitle')
     # defaults
-    Et.SubElement(root, 'spaceoffset').text = "0"
-    Et.SubElement(root, 'chscharcomp').text = "0"
     Et.SubElement(root, 'autoclose').text = "True"
     Et.SubElement(root, 'autoreset').text = "True"
 
@@ -56,14 +54,6 @@ def get_directory() -> str:
 
 def get_window_title_suffix() -> str:
     return get_config("windowtitle")
-
-
-def get_output_space_offset() -> int:
-    return int(get_config("spaceoffset"))
-
-
-def get_chinese_char_comp() -> float:
-    return float(get_config("chscharcomp"))
 
 
 def enable_auto_close() -> bool:

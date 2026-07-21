@@ -1,3 +1,4 @@
 colorama
 openpyxl
 pywin32; sys_platform == "win32"
+tabulate[widechars]==0.10.0

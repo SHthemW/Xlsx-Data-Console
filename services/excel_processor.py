@@ -5,7 +5,8 @@ from openpyxl.chartsheet import Chartsheet
 
 from entities.color import Colors
 from entities.command import Keyword
-from utilities.local import get_output_space_offset, get_chinese_char_comp, get_directory
+from services.detail_formatter import format_detail_table
+from utilities.local import get_directory
 from utilities.process import start_window
 
 
@@ -15,13 +16,6 @@ class ExcelProcessor:
 
     def search_files(self, field: tuple, filenames, show_detail: bool) -> str:
 
-        def get_color(s, key_val) -> str:
-            value_str = str(s)
-            for tgt_value in map(str, key_val):
-                if tgt_value in value_str:
-                    return Colors.RED
-            return Colors.LIGHTYELLOW_EX
-
         def find_as_str() -> bool:
             _found = False
             if any(tgt_value in str(cell.value) for tgt_value in map(str, values)):
@@ -30,23 +24,11 @@ class ExcelProcessor:
                 _found = True
                 if show_detail:
                     print('详细信息：')
-                    for i in range(0, len(row), 2):
-                        # calc val
-                        left = row[i]
-                        right = row[i + 1] if i + 1 < len(row) else None
-                        # print
-                        left_color = get_color(left.value, values)
-                        print(
-                            f"{Colors.GREEN}{worksheet[left.column_letter + '1'].value or '':<20}: "
-                            f"{left_color}{str(left.value)[:10] or '':<{self.pad_len(left.value, 10)}}"
-                            f"{Colors.RESET}", end="   ")
-                        if not right:
-                            continue
-                        right_color = get_color(right.value, values)
-                        print(
-                            f"{Colors.GREEN}{worksheet[right.column_letter + '1'].value or '':<20}: "
-                            f"{right_color}{str(right.value)[:10] or '':<{self.pad_len(right.value, 10)}}"
-                            f"{Colors.RESET}")
+                    fields = [
+                        (worksheet[cell.column_letter + '1'].value, cell.value)
+                        for cell in row
+                    ]
+                    print(format_detail_table(fields, values))
                     print("")
             return _found
 
@@ -188,24 +170,6 @@ class ExcelProcessor:
         return [(find_matching_filename(name) if find_matching_filename(name) else
                  (name + (".xlsx" if ".xlsx" not in name else "")))
                 for name in filenames_str.split() if not Keyword.is_keyword(name)]
-
-    @staticmethod
-    def pad_len(string, length):
-        def ch_count(check_str):
-            count = 0
-            for ch in check_str:
-                if '\u4e00' <= ch <= '\u9fff':
-                    count += 1
-            return count
-
-        string = str(string)
-        result = (length
-                  - len(string.encode('GBK'))
-                  + len(string)
-                  + int(ch_count(string) * get_chinese_char_comp())
-                  + get_output_space_offset())
-        return max(0, result)
-
 
 if __name__ == '__main__':
     print(ExcelProcessor(get_directory()).get_pure_filenames(input("test pure: ")))

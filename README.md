@@ -7,7 +7,8 @@ XlDb是简易的数据库服务程序, 它支持以xlsx表格文件为数据源,
 
 ## 环境配置
 
-要使用XlDb, 你的PC需要拥有python3.8及以上的运行环境, 并配置相应的环境变量.  
+要使用XlDb, 你的PC需要拥有 Python 3.10 及以上的运行环境, 并配置相应的环境变量.
+
 python下载链接: https://www.python.org/downloads/
 
 若不清楚是否具备环境, 可按以下方式查询:  
