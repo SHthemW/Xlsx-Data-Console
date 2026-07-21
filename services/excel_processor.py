@@ -15,24 +15,8 @@ class ExcelProcessor:
         self.__directory = directory
 
     def search_files(self, field: tuple, filenames, show_detail: bool) -> str:
-
-        def find_as_str() -> bool:
-            _found = False
-            if any(tgt_value in str(cell.value) for tgt_value in map(str, values)):
-                print(
-                    Colors.GREEN + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}{Colors.GREEN}的第{Colors.LIGHTYELLOW_EX}{cell.row:<5}{Colors.GREEN}行第{Colors.LIGHTYELLOW_EX}{cell.column:<5}{Colors.GREEN}列查找到目标' + Colors.RESET)
-                _found = True
-                if show_detail:
-                    print('详细信息：')
-                    fields = [
-                        (worksheet[cell.column_letter + '1'].value, cell.value)
-                        for cell in row
-                    ]
-                    print(format_detail_table(fields, values))
-                    print("")
-            return _found
-
         column_name, values = field
+        target_values = tuple(map(str, values))
         ret_filename = None
         found = False
         for filename in os.listdir(self.__directory):
@@ -47,14 +31,60 @@ class ExcelProcessor:
                     column_index = None if column_name is None else (
                         headers.index(column_name) + 1 if column_name in headers else None)
                     if column_index is not None or column_name is None:
+                        matching_rows = []
                         for row in worksheet.iter_rows(min_row=2):
-                            for cell in row:
-                                if cell.value is not None and (
-                                        (column_index is None) or (cell.col_idx == column_index)):
-                                    # 尝试将单元格值和字段都转换为str进行比较
-                                    if find_as_str():
-                                        found = True
-                                        ret_filename = filename
+                            matching_cells = [
+                                cell
+                                for cell in row
+                                if cell.value is not None
+                                and (column_index is None or cell.col_idx == column_index)
+                                and any(target in str(cell.value) for target in target_values)
+                            ]
+                            if not matching_cells:
+                                continue
+
+                            matching_rows.append((row, matching_cells))
+
+                        if not matching_rows:
+                            continue
+
+                        print(
+                            Colors.GREEN
+                            + f'在文件{Colors.LIGHTYELLOW_EX}{filename:<30}'
+                              f'{Colors.GREEN}的工作表{Colors.LIGHTYELLOW_EX}{sheet:<10}'
+                              f'{Colors.GREEN}中查找到目标'
+                            + Colors.RESET
+                        )
+                        if show_detail:
+                            print('详细信息：')
+
+                        for result_index, (row, matching_cells) in enumerate(matching_rows):
+                            if result_index > 0:
+                                print("...")
+
+                            matching_columns = "、".join(
+                                str(cell.column)
+                                for cell in matching_cells
+                            )
+                            print(
+                                Colors.GREEN
+                                + f'第{Colors.LIGHTYELLOW_EX}{matching_cells[0].row}'
+                                  f'{Colors.GREEN}行（第{Colors.LIGHTYELLOW_EX}{matching_columns}'
+                                  f'{Colors.GREEN}列）'
+                                + Colors.RESET
+                            )
+
+                            if show_detail:
+                                detail_fields = [
+                                    (header, cell.value)
+                                    for header, cell in zip(headers, row)
+                                    if header is not None or cell.value is not None
+                                ]
+                                print(format_detail_table(detail_fields, target_values))
+
+                        print("")
+                        found = True
+                        ret_filename = filename
         if not found:
             print(Colors.YELLOW + f"未在任何文件中找到字段'{field}'" + Colors.RESET)
         return ret_filename
